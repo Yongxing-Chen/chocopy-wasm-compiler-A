@@ -87,12 +87,6 @@ function codeGenStmt(stmt: Stmt<Annotation>, env: GlobalEnv): Array<string> {
         ...codeGenValue(stmt.value, env),
         `call $store`
       ]
-    case "duplicate_str":
-      return [
-        ...codeGenValue(stmt.source, env),
-        ...codeGenValue(stmt.dest, env),
-        `call $duplicate_str`
-      ]
     case "assign":
       var valStmts = codeGenExpr(stmt.value, env);
       if (env.locals.has(stmt.name)) {
@@ -144,11 +138,11 @@ function codeGenExpr(expr: Expr<Annotation>, env: GlobalEnv): Array<string> {
     case "binop":
       const lhsStmts = codeGenValue(expr.left, env);
       const rhsStmts = codeGenValue(expr.right, env);
-      return [...lhsStmts, ...rhsStmts, codeGenBinOp(expr.op)]
+      return [...lhsStmts, ...rhsStmts, codeGenBinOp(expr.op)];
     case "str_compare":
       const str_lhsStmts = codeGenValue(expr.left, env);
       const str_rhsStmts = codeGenValue(expr.right, env);
-      return [...str_lhsStmts, ...str_rhsStmts,  `(call $str_comparison)`, ...codeGenValue(expr.op, env), `(i32.eq)` ]
+      return [...str_lhsStmts, ...str_rhsStmts,  `(call $str_comparison)`, ...codeGenValue(expr.op, env), `(i32.eq)` ];
 
     case "uniop":
       const exprStmts = codeGenValue(expr.expr, env);
@@ -188,13 +182,6 @@ function codeGenExpr(expr: Expr<Annotation>, env: GlobalEnv): Array<string> {
       var valStmts = expr.arguments.map((arg) => codeGenValue(arg, env)).flat();
       valStmts.push(`(call $${expr.name})`);
       return valStmts;
-    case "getLengthSum":
-      const addr1 = codeGenValue(expr.addr1,env);
-      const addr2 = codeGenValue(expr.addr2,env);
-      return [...addr1,
-        ...addr2,
-        `call $get_Length`
-      ];
     case "alloc":
       return [
         ...codeGenValue(expr.amount, env),
